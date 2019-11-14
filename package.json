@@ -1,0 +1,16 @@
+{
+  "name": "mercury",
+  "version": "1.0.0",
+  "description": "A comprehensive, hackable, sequence-based system for controlling Linux desktops",
+  "main": "index.ts",
+  "author": "Alex Hulbert",
+  "devDependencies": {
+    "@types/node": "^12.12.7"
+  },
+  "dependencies": {
+    "@julusian/jpeg-turbo": "^0.5.2",
+    "canvas": "^2.6.0",
+    "elgato-stream-deck": "^3.1.0"
+  },
+  "license": "MIT"
+}

@@ -10,7 +10,8 @@
   "dependencies": {
     "@julusian/jpeg-turbo": "^0.5.2",
     "canvas": "^2.6.0",
-    "elgato-stream-deck": "^3.1.0"
+    "elgato-stream-deck": "^3.1.0",
+    "x11": "^1.0.3"
   },
   "license": "MIT"
 }

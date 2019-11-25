@@ -14,10 +14,16 @@ export default class HUD {
   labels: any[] = []
   labelProviders: any[] = []
 
-  constructor(public labelColor, public backgroundColor) {
+  constructor(
+    public labelColor = [0, 0, 0],
+    public backgroundColor = [255, 255, 255]
+  ) {
     // Instantiate new GTK window
     Gtk.init()
-    this.win = new Gtk.Window(Gtk.WindowType.POPUP)
+    this.win = new Gtk.Window({
+      type: Gtk.WindowType.POPUP,
+      title: 'HUD'
+    })
 
     // Tell window manager to make HUD non-focusable and above everything else
     this.win.setCanFocus(false)
@@ -30,8 +36,7 @@ export default class HUD {
     this.win.setSizeRequest(WIN_SIZE, WIN_SIZE)
 
     // Set window title and draw background
-    this.win.setTitle("HUD")
-    // this.drawBackgroundWithOpacity(0.66)
+    this.drawBackgroundWithOpacity(0.66)
 
     // Create a new grid to hold a 3x3 square of text-containing labels
     const grid = new Gtk.Grid()
@@ -57,10 +62,10 @@ export default class HUD {
 
     // Show all elements except for root element (invisible on program start)
     this.win.showAll()
-    // TODO: this.win.setVisible(false)
+    this.win.setVisible(false)
 
     // Start main GTK loop
-    Gtk.main()
+    process.nextTick(Gtk.main)
   }
 
   show(codes: number[]) {
@@ -84,20 +89,20 @@ export default class HUD {
         const cssRefProvider = new Gtk.CssProvider()
         cssRefProvider.loadFromData("window label { margin-bottom: -12.5px; }")
         this.labelProviders[i] = cssRefProvider
-        labelStyle.AddProvider(cssRefProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        labelStyle.addProvider(cssRefProvider, 9999)
       }
 
       // TODO: Allow for custom fonts like in main package
       // Create a span containing the character to display and attach it to the label
-      this.labels[i].SetMarkup(`
-        <span
+      this.labels[i].setMarkup(
+        `<span
           font_desc='Font Awesome 5 Free'
           size='${size}'
           foreground='#${
-            this.labelColor.map(v => v.toString(16).padStart(2, 'o')).join('')
+            this.labelColor.map(v => v.toString(16).padStart(2, '0')).join('')
           }'
-        >${String.fromCharCode(code)}</span>
-      `)
+        >${String.fromCharCode(code)}</span>`
+      )
     }
 
     // Reposition HUD and make it visible
@@ -111,8 +116,8 @@ export default class HUD {
 
   // Queries monitor width and positions HUD on top right corner
   private refreshPos() {
-    const monitor = Gdk.Display.getDefault().getPrimaryMonitor()
-    const width = monitor.getGeometry().width
+    // TODO: Calculate width
+    const width = 1920
     this.win.move(width - WIN_SIZE - WIN_PADDING, WIN_PADDING)
   }
 
@@ -121,8 +126,8 @@ export default class HUD {
 
     // Paint RGBA layers on window draw
     this.win.on('draw', (context: any) => {
-      context.setSourceRGB(...this.backgroundColor, opacity)
-      context.setOperator(Cairo.OPERATOR_SOURCE)
+      context.setSourceRgba(...this.backgroundColor, opacity)
+      context.setOperator(Cairo.Operator.SOURCE)
       context.paint()
     })
 

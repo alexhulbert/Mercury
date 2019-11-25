@@ -3,7 +3,7 @@ import * as x11 from 'x11'
 
 import { MercuryIODevice } from '../interface'
 import Utils, { XKey, MODIFIERS } from './utils'
-import HUD from './hud/dbus'
+import HUD from './hud'
 
 interface KeyFnMap { [modifiers: number]: { [code: number]: Function } }
 interface XEvent { name: string, buttons: number, keycode: number }
@@ -22,7 +22,7 @@ const KEYS = [
 ]
 export class KeyboardMIO implements MercuryIODevice {
 
-  hud = new HUD()
+  hud: any
   hudCodes = [0, 0, 0, 0, 0, 0, 0, 0, 0]
   curFolder = ''
 
@@ -44,6 +44,7 @@ export class KeyboardMIO implements MercuryIODevice {
           resolve()
         }
       }).on('event', (ev: any) => this.onXKeyPress(ev))
+      this.hud = new HUD()
     })
   }
 

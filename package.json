@@ -12,7 +12,7 @@
     "canvas": "^2.6.0",
     "dbus-native": "^0.4.0",
     "elgato-stream-deck": "^3.1.0",
-    "node-gtk": "^0.3.0",
+    "node-gtk": "file:.yalc/node-gtk",
     "x11": "^1.0.3"
   },
   "license": "MIT"

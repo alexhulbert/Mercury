@@ -2,79 +2,79 @@ import { KeyboardMIO } from './src/devices/keyboard'
 import Application from './src/keybind-router'
 
 Application({
-  devices: [],
-  binds: {
-    'A': {
+  devices: [ new KeyboardMIO() ],
+  binds: {/**/
+    'KP_End': {
       icon: 'aa00',
       folder: {
         name: 'A',
         binds: {
-          'S': {
+          'KP_Down': {
             icon: 'aabb',
             folder: {
               name: 'AB',
               binds: {
-                'S': {
+                'KP_Down': {
                   icon: 'abab',
                   command: () => console.log('ABB')
                 },
-                'D': {
+                'KP_Next': {
                   icon: 'aabc',
                   folder: {
                     name: 'ABC',
                     binds: {
-                      'F': {
+                      'KP_Left': {
                         icon: 'abcd',
                         command: () => console.log('ABCD')
                       },
-                      'G':{
+                      'KP_Begin':{
                         icon: 'abce',
                         command: () => console.log('ABCE')
                       }
                     }
                   }
                 },
-                'F': {
+                'KP_Left': {
                   icon: 'aabd',
                   command: () => console.log('ABD clicked')
                 }
               }
             }
           },
-          'D': {
+          'KP_Next': {
             icon: 'aacc',
             command: () => console.log('AC clicked')
           },
-          'F': {
+          'KP_Left': {
             icon: 'aadd',
             command: () => console.log('AD clicked')
           }
         }
       }
     },
-    'S': {
+    'KP_Down': {
       icon: 'bb00',
       command: () => console.log('B clicked')
     },
-    'D': {
+    'KP_Next': {
       icon: 'cc00',
       folder: {
         name: 'C',
         binds: {
-          'A': {
+          'KP_End': {
             icon: 'ccaa',
             command: () => console.log('CA clicked')
           },
-          'S': {
+          'KP_Down': {
             icon: 'ccbb',
             command: () => console.log('CB clicked')
           }
         }
       }
     },
-    'F': {
+    'KP_Left': {
       icon: 'dd00',
       command: () => console.log('D clicked')
     }
-  }
+  /**/}
 })

@@ -28,7 +28,6 @@ export class State {
         return conditional[stateVar][curValue]
       }
     }
-    return undefined
   }
 
   // Called by state hooks to get the value of something in the state

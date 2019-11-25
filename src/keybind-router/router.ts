@@ -193,6 +193,11 @@ export default class {
 
   // Determines which device is associated with a given key
   private getDeviceByKey(key: Key) {
-    return this.devices.find(dev => dev.isKeyFromDevice(key))
+    const device = this.devices.find(dev => dev.isKeyFromDevice(key))
+    if (!device) {
+      console.error(`Error: Key "${String(key)}" not found`)
+      process.exit(1)
+    }
+    return device
   }
 }

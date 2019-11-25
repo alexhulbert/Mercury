@@ -219,6 +219,7 @@ func spawnListener(win *gtk.Window) {
 	iface := &introspect.Interface{}
 	iface.Name = ifaceName
 	mts := introspect.Methods(hud)
+	print(mts)
 	iface.Methods = mts
 	node.Interfaces = append(node.Interfaces, *iface)
 	dbusXMLStr := introspect.NewIntrospectable(node)

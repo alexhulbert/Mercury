@@ -100,8 +100,9 @@ export default class {
         targetIcons[key] = totalIcons[key]
       } else {
         // If the key needs to be changed, but it wasn't bound to anything at
-        // folderLevel, then unbind the key
+        // folderLevel, then unbind and clear out the icon for that key
         this.getDeviceByKey(key).unbindKey(key)
+        targetIcons[key] = 0
       }
     }
 
@@ -184,10 +185,10 @@ export default class {
     }
 
     for (const device of this.devices) {
-      // Notify all devices that folder name has been changed
-      device.displayChars(newIcons)
       // Display all icons defined in newIcons
       device.folderEntered(name || null)
+      // Notify all devices that folder name has been changed
+      device.displayChars(newIcons)
     }
   }
 

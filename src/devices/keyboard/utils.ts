@@ -18,15 +18,15 @@ for (const keycodeLine of keymapStr.split('\n')) {
   }
 }
 
-enum MODIFIERS {
+export enum MODIFIERS {
   SHIFT,
+  CAPSLOCK,
   CONTROL,
   ALT,
-  SUPER,
   NUMLOCK,
-  CAPSLOCK,
-  SHIFTLOCK,
-  SCROLLLOCK
+  SCROLLLOCK,
+  SUPER,
+  SHIFTLOCK
 }
 
 export const getModifierMask = (modifiers: string[]) => (

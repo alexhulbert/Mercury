@@ -2,12 +2,29 @@
 import * as x11 from 'x11'
 
 import { MercuryIODevice } from '../interface'
-import Utils, { XKey } from './utils'
+import Utils, { XKey, MODIFIERS } from './utils'
+import HUD from './hud/dbus'
 
 interface KeyFnMap { [modifiers: number]: { [code: number]: Function } }
 interface XEvent { name: string, buttons: number, keycode: number }
 
+const IGNORED_MODIFIERS = [
+  MODIFIERS.CAPSLOCK,
+  MODIFIERS.NUMLOCK,
+  MODIFIERS.SCROLLLOCK,
+  MODIFIERS.SHIFTLOCK
+]
+
+const KEYS = [
+  'KP_Home',    'KP_Up', 'KP_Prior',
+  'KP_Left', 'KP_Begin', 'KP_Right',
+   'KP_End',  'KP_Down',  'KP_Next'
+]
 export class KeyboardMIO implements MercuryIODevice {
+
+  hud = new HUD()
+  hudCodes = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+  curFolder = ''
 
   keyDownFns: KeyFnMap = {}
   keyUpFns: KeyFnMap = {}
@@ -35,19 +52,24 @@ export class KeyboardMIO implements MercuryIODevice {
   }
 
   reset() {
+    this.hud.hide()
     console.clear()
   }
 
-  displayChars(keyCodes: Record<symbol, number>) {
-    for (const key of Object.getOwnPropertySymbols(keyCodes)) {
-      console.log(`${String(key)}: ${keyCodes[key].toString(16)}`)
+  displayChars(keyCodes: Record<string, number>) {
+    for (const key of Object.keys(keyCodes)) {
+      const index = KEYS.indexOf(key)
+      if (index >= 0) this.hudCodes[index] = keyCodes[key]
+    }
+    if (this.curFolder) {
+      this.hud.show(this.hudCodes)
     }
   }
 
   onKeyDown(key: string, fn: Function) {
     const keycodesToBind = Utils.parseKeySequence(key)
     for (const { code, modifiers } of keycodesToBind) {
-      this.X.GrabKey(this.xDisplay, 0, modifiers, code, false, true)
+      this.xGrabKey(code, modifiers)
       if (!this.keyDownFns[modifiers]) this.keyDownFns[modifiers] = {}
       this.keyDownFns[modifiers][code] = fn
     }
@@ -56,7 +78,6 @@ export class KeyboardMIO implements MercuryIODevice {
   onKeyUp(key: string, fn: Function) {
     const keycodesToBind = Utils.parseKeySequence(key)
     for (const { code, modifiers } of keycodesToBind) {
-      this.X.GrabKey(this.xDisplay, 0, modifiers, code, false, true)
       if (!this.keyUpFns[modifiers]) this.keyUpFns[modifiers] = {}
       this.keyUpFns[modifiers][code] = fn
     }
@@ -65,7 +86,7 @@ export class KeyboardMIO implements MercuryIODevice {
   unbindKey(key: string) {
     const boundKeycodes = Utils.parseKeySequence(key)
     for (const { code, modifiers } of boundKeycodes) {
-      this.X.UngrabKey(this.xDisplay, code, modifiers)
+      this.xUngrabKey(code, modifiers)
       if (this.keyDownFns[modifiers] && this.keyDownFns[modifiers][code]) {
         delete this.keyDownFns[modifiers][code]
       }
@@ -76,19 +97,61 @@ export class KeyboardMIO implements MercuryIODevice {
   }
 
   folderEntered(folderName: string) {
-    console.log('ENTERED', folderName)
+    this.curFolder = folderName
+    if (!folderName) {
+      this.hud.hide()
+    }
   }
 
   private onXKeyPress(event: XEvent) {
+    let modifiers = event.buttons
+    for (const ignoredModifier of IGNORED_MODIFIERS) {
+      modifiers &= ~(1 << ignoredModifier)
+    }
     if (
       event.name === 'KeyPress' &&
-      this.keyDownFns[event.buttons] &&
-      this.keyDownFns[event.buttons][event.keycode]
-    ) this.keyDownFns[event.buttons][event.keycode]()
+      this.keyDownFns[modifiers] &&
+      this.keyDownFns[modifiers][event.keycode]
+    ) this.keyDownFns[modifiers][event.keycode]()
     if (
       event.name === 'KeyRelease' &&
-      this.keyUpFns[event.buttons] &&
-      this.keyUpFns[event.buttons][event.keycode]
-    ) this.keyUpFns[event.buttons][event.keycode]()
+      this.keyUpFns[modifiers] &&
+      this.keyUpFns[modifiers][event.keycode]
+    ) this.keyUpFns[modifiers][event.keycode]()
+  }
+
+  private xGrabKey(code: number, baseModifiers: number) {
+    this.iterateIgnoredModifiers(code, baseModifiers, (modifiers) => {
+      this.X.GrabKey(this.xDisplay, 0, modifiers, code, false, true)
+    })
+  }
+
+  private xUngrabKey(code: number, baseModifiers: number) {
+    this.iterateIgnoredModifiers(code, baseModifiers, (modifiers) => {
+      this.X.UngrabKey(this.xDisplay, code, modifiers)
+    })
+  }
+
+  private iterateIgnoredModifiers(
+    code: number,
+    baseModifiers: number,
+    fn: (modifiers: number) => void,
+    ignoredModifiers: number[] = IGNORED_MODIFIERS,
+  ) {
+    fn(baseModifiers)
+
+    if (
+      ignoredModifiers.length === IGNORED_MODIFIERS.length &&
+      code >= 79 && code <= 91
+    ) {
+      ignoredModifiers = ignoredModifiers.filter(m => m != MODIFIERS.NUMLOCK)
+    }
+
+    if (ignoredModifiers.length) {
+      const newModifiers = baseModifiers | (1 << ignoredModifiers[0])
+      const newIgnoredModifiers = ignoredModifiers.slice(1)
+      this.iterateIgnoredModifiers(code, baseModifiers, fn, newIgnoredModifiers)
+      this.iterateIgnoredModifiers(code, newModifiers, fn, newIgnoredModifiers)
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { State } from '../keybind-router/state'
+import State from '..'
 
 export default (context: State) => {
   // Toggles state.example every 5 seconds

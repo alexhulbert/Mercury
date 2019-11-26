@@ -1,5 +1,5 @@
 import { MercuryIODevice } from '../devices/interface'
-import { Cond, State } from './state'
+import State, { Cond } from '../state'
 import { Key, ROOT_FOLDER_NAME } from './index'
 import Utils from './utils'
 
@@ -35,12 +35,13 @@ export default class {
   // A trail of currently opened folders
   // BackKey refers to the key used to enter/undo that specific folder
   openFolders: Array<{ name: string, backKey?: string}> = []
-  // A state class that allows third-party code to change the shortcuts
-  // See ./state.ts and ./state-hooks/*
-  state = new State()
 
-  // Accepts a list of already initialized devices and a folder map
-  constructor(public devices: MercuryIODevice[], public folders: FolderMap) {
+  // Accepts a list of initialized devices, a folder map, and a state object
+  constructor(
+    public devices: MercuryIODevice[],
+    public folders: FolderMap,
+    public state: State
+  ) {
     // When the state changes, reload the functions/icons bound to each key
     this.state.onRefresh(() => this.refresh())
     // Initialize with the root folder

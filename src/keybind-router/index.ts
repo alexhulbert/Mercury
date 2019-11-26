@@ -1,12 +1,13 @@
 import { MercuryIODevice } from '../devices/interface'
-import { Cond } from './state'
+import State, { Cond } from '../state'
 import Utils from './utils'
 import Router, { Folder as RouterFolder } from './router'
 
 // Application configuration file. Contains everything needed to start server
 export interface Config {
   devices: MercuryIODevice[],
-  binds: KeyMap
+  binds: KeyMap,
+  state: State
 }
 
 // A string or symbol representing a button, keyboard key, etc. on a device
@@ -57,7 +58,7 @@ export const ROOT_FOLDER_NAME = ''
 
 // This function flattens the config file and waits for devices to initialize
 // After is complete, the function returns a new Router (defined in router.ts)
-export default async function({ devices, binds }: Config) {
+export default async function({ devices, binds, state }: Config) {
   // Wait for all devices to be initialized
   const promises = devices.filter(d => d.initialize).map(d => d.initialize())
   await Promise.all(promises)
@@ -67,7 +68,7 @@ export default async function({ devices, binds }: Config) {
   // Resolve all aliases in the folderName map
   const resolvedFolderMap = resolveAliases(folderNameMap)
   // Returns a new Router instance. This handles the body of the application
-  return new Router(devices, resolvedFolderMap)
+  return new Router(devices, resolvedFolderMap, state)
 }
 
 // Converts the recursively-defined structure of the config file into

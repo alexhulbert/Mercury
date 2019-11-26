@@ -1,10 +1,10 @@
-import * as Hooks from '../state-hooks'
+import * as Hooks from './hooks'
 
 // State condition variable type. Map from variable to value to data
 export type Cond<T> = T | Record<string, Record<string, T>>
 
 // This class allows outside changes to modify keybindings
-export class State {
+export default class {
   private state: Record<string, string> = {}
   private refreshFn: Function = () => {}
 

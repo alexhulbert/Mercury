@@ -2,7 +2,7 @@
   "name": "mercury",
   "version": "1.0.0",
   "description": "A comprehensive, hackable, sequence-based system for controlling Linux desktops",
-  "main": "index.ts",
+  "main": "src/index.ts",
   "author": "Alex Hulbert",
   "devDependencies": {
     "@types/node": "^12.12.7"
@@ -10,9 +10,8 @@
   "dependencies": {
     "@julusian/jpeg-turbo": "^0.5.2",
     "canvas": "^2.6.0",
-    "dbus-native": "^0.4.0",
     "elgato-stream-deck": "^3.1.0",
-    "node-gtk": "file:.yalc/node-gtk",
+    "node-gtk": "file:./node-gtk",
     "x11": "^1.0.3"
   },
   "license": "MIT"

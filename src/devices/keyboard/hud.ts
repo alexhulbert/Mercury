@@ -1,6 +1,5 @@
 import * as GI from 'node-gtk'
 const Gtk = GI.require('Gtk', '3.0')
-const Gdk = GI.require('Gdk', '3.0')
 const Cairo = GI.require('cairo')
 GI.startLoop()
 
@@ -115,9 +114,8 @@ export default class HUD {
 
   // Queries monitor width and positions HUD on top right corner
   private refreshPos() {
-    // TODO: Calculate width
-    const width = 1920
-    this.win.move(width - WIN_SIZE - WIN_PADDING, WIN_PADDING)
+    const screenWidth = this.win.getScreen().getWidth()
+    this.win.move(screenWidth - WIN_SIZE - WIN_PADDING, WIN_PADDING)
   }
 
   // Draws a background on the main HUD window with the specified opacity 

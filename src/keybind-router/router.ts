@@ -24,7 +24,7 @@ type KeyMap = Record<Key, Action>
 // Same as index.ts, except that folder only refers to the name of a subfolder
 // and not the actual content of that folder
 interface Action {
-  icon: Cond<string>
+  icon?: Cond<string>
   keepFolderOpen?: boolean
   command?: Cond<Function>
   folder?: string

@@ -1,7 +1,7 @@
 import * as Hooks from './hooks'
 
 // State condition variable type. Map from variable to value to data
-export type Cond<T> = T | Record<string, Record<string, T>>
+export type Cond<T> = Record<string, Record<string, T>> | T | undefined
 
 // This class allows outside changes to modify keybindings
 export default class {

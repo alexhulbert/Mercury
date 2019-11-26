@@ -25,7 +25,7 @@ export type KeyMap = Record<Key, Action | Alias>
 // This allows conditional icons and commands based on the current state
 export interface Action {
   // Character code of the icon for this action
-  icon: Cond<string>
+  icon?: Cond<string>
   // A command to execute when this action is executed
   command?: Cond<Function>
   // If true, all folders won't close when the command is executed

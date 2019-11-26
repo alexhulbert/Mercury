@@ -4,11 +4,14 @@ const Gdk = GI.require('Gdk', '3.0')
 const Cairo = GI.require('cairo')
 GI.startLoop()
 
-const WIN_SIZE = 180
+const SIZE = 4
+
+const CELL_SIZE = 30
 const WIN_PADDING = 35
 const MARGIN = 10
 const FONT_SIZE = 25000
 
+const WIN_SIZE = CELL_SIZE * SIZE + MARGIN * (SIZE - 1) + WIN_PADDING * 2
 export default class HUD {
   win: any
   labels: any[] = []
@@ -38,18 +41,14 @@ export default class HUD {
     // Set window title and draw background
     this.drawBackgroundWithOpacity(0.66)
 
-    // Create a new grid to hold a 3x3 square of text-containing labels
+    // Create a new grid to hold a NxN square of text-containing labels
     const grid = new Gtk.Grid()
     grid.setHalign(Gtk.Align.FILL)
     grid.setValign(Gtk.Align.FILL)
-    grid.setMarginTop(MARGIN)
-    grid.setMarginEnd(MARGIN)
-    grid.setMarginBottom(MARGIN)
-    grid.setMarginStart(MARGIN)
     this.win.add(grid)
 
-    // Create 9 new labels and attach them to grid cells
-    for (let i = 0; i < 9; i++) {
+    // Create N*N new labels and attach them to grid cells
+    for (let i = 0; i < SIZE * SIZE; i++) {
       const label = new Gtk.Label("<span></span>")
       label.setUseMarkup(true)
       label.setHalign(Gtk.Align.CENTER)
@@ -57,7 +56,7 @@ export default class HUD {
       label.setHexpand(true)
       label.setVexpand(true)
       this.labels[i] = label
-      grid.attach(label, i % 3, i / 3, 1, 1)
+      grid.attach(label, i % SIZE, i / SIZE, 1, 1)
     }
 
     // Show all elements except for root element (invisible on program start)
@@ -69,8 +68,8 @@ export default class HUD {
   }
 
   show(codes: number[]) {
-    // Loop over each of the 9 GTK labels
-    for (let i = 0; i < 9; i++) {
+    // Loop over each of the NxN GTK labels
+    for (let i = 0; i < SIZE * SIZE; i++) {
       // Ignore characters with value 0x0000
       const code = codes[i]
       if (!code) continue

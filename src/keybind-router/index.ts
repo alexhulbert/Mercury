@@ -28,8 +28,6 @@ export interface Action {
   icon?: Cond<string>
   // A command to execute when this action is executed
   command?: Cond<Function>
-  // If true, all folders won't close when the command is executed
-  keepFolderOpen?: boolean
   // A subfolder to open when this action is executed
   folder?: Folder | string
 }
@@ -43,6 +41,8 @@ export interface Folder {
   binds: KeyMap
   // If true, exit folder on key release rather than toggling
   isModifier?: boolean
+  // If true, all folders won't close when the command is executed
+  keepOpen?: boolean
 }
 
 // Aliases can be used to define mappings from a key to another folder and key

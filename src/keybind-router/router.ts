@@ -15,6 +15,7 @@ export interface Folder {
   name: string
   binds: KeyMap
   isModifier?: boolean
+  keepOpen?: boolean
 }
 
 // Same as index.ts, except that `binds` only maps from keys to actions
@@ -25,7 +26,6 @@ type KeyMap = Record<Key, Action>
 // and not the actual content of that folder
 interface Action {
   icon?: Cond<string>
-  keepFolderOpen?: boolean
   command?: Cond<Function>
   folder?: string
 }
@@ -120,7 +120,7 @@ export default class {
   private createBindFns(folderLevel: number) {
     // Get all the required data about the folder
     const { name: folderName, backKey } = this.openFolders[folderLevel]
-    const { isModifier, binds } = this.folders[folderName]
+    const { isModifier, binds, keepOpen } = this.folders[folderName]
     // This will hold the binding functions
     const bindFnMap: BindFnMap = {}
     
@@ -146,7 +146,7 @@ export default class {
           if (action.folder) {
             // If the action has a subfolder, open that folder
             this.openFolder(action.folder, key)
-          } else if (!action.keepFolderOpen) {
+          } else if (!keepOpen) {
             // If a command was executed, close the folder
             // (unless otherwise specified)
             this.navigateBack(0)

@@ -40,6 +40,7 @@ drawBackgroundWithOpacity(0.66)
 const grid = new Gtk.Grid()
 grid.halign = Gtk.Align.FILL
 grid.valign = Gtk.Align.FILL
+grid.setBorderWidth(MARGIN)
 grid.setMarginTop(MARGIN)
 grid.setMarginBottom(MARGIN)
 grid.setMarginStart(MARGIN)

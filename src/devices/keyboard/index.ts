@@ -1,9 +1,10 @@
 
 import * as x11 from 'x11'
+import * as Path from 'path'
 
 import { MercuryIODevice } from '../interface'
 import Utils, { XKey, MODIFIERS } from './utils'
-import HUD from './hud'
+import { fork, ChildProcess } from 'child_process'
 
 interface KeyFnMap { [modifiers: number]: { [code: number]: Function } }
 interface XEvent { name: string, buttons: number, keycode: number }
@@ -22,7 +23,7 @@ const KEYS = [
 ]
 export class KeyboardMIO implements MercuryIODevice {
 
-  hud: any
+  hud: ChildProcess
   hudCodes = [0, 0, 0, 0, 0, 0, 0, 0, 0]
   curFolder = ''
 
@@ -34,6 +35,7 @@ export class KeyboardMIO implements MercuryIODevice {
   X: any
 
   initialize() {
+    this.hud = fork(Path.join(__dirname, 'hud.ts'))
     return new Promise<void>((resolve, reject) => {
       x11.createClient((err, { client: X, screen }) => {
         if (err) {
@@ -44,7 +46,6 @@ export class KeyboardMIO implements MercuryIODevice {
           resolve()
         }
       }).on('event', (ev: any) => this.onXKeyPress(ev))
-      this.hud = new HUD()
     })
   }
 
@@ -53,8 +54,7 @@ export class KeyboardMIO implements MercuryIODevice {
   }
 
   reset() {
-    this.hud.hide()
-    console.clear()
+    this.hud.send({ type: 'hide' })
   }
 
   displayChars(keyCodes: Record<string, number>) {
@@ -63,7 +63,7 @@ export class KeyboardMIO implements MercuryIODevice {
       if (index >= 0) this.hudCodes[index] = keyCodes[key]
     }
     if (this.curFolder) {
-      this.hud.show(this.hudCodes)
+      this.hud.send({ type: 'show', codes: this.hudCodes })
     }
   }
 
@@ -100,7 +100,7 @@ export class KeyboardMIO implements MercuryIODevice {
   folderEntered(folderName: string) {
     this.curFolder = folderName
     if (!folderName) {
-      this.hud.hide()
+      this.hud.send({ type: 'hide' })
     }
   }
 

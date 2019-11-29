@@ -1,2 +1,3 @@
 // Add entries for new state hook files here
-export * from './example'
+export { WkspChange } from './wksp-change'
+export { Sidebar } from './sidebar'

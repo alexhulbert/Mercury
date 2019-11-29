@@ -5,12 +5,15 @@
   "main": "src/index.ts",
   "author": "Alex Hulbert",
   "devDependencies": {
-    "@types/node": "^12.12.7"
+    "@types/node": "^12.12.7",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.2"
   },
   "dependencies": {
     "@julusian/jpeg-turbo": "^0.5.2",
     "canvas": "^2.6.0",
     "elgato-stream-deck": "^3.1.0",
+    "i3": "^0.2.1",
     "node-gtk": "file:./node-gtk",
     "x11": "^1.0.3"
   },

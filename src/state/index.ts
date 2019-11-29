@@ -5,8 +5,8 @@ export type Cond<T> = Record<string, Record<string, T>> | T | undefined
 
 // This class allows outside changes to modify keybindings
 export default class {
-  private state: Record<string, string> = {}
-  private refreshFn: Function = () => {}
+  state: Record<string, any> = {}
+  refresh: Function = () => {}
 
   constructor() {
     // For each module exported by ../state-hooks/index.ts,
@@ -16,7 +16,7 @@ export default class {
 
   // Called by router to bind code to state changes
   onRefresh(refreshFn: Function) {
-    this.refreshFn = refreshFn
+    this.refresh = refreshFn
   } 
 
   // Called by router to collapse Cond<T> types into a single value
@@ -28,17 +28,5 @@ export default class {
         return conditional[stateVar][curValue]
       }
     }
-  }
-
-  // Called by state hooks to get the value of something in the state
-  get(stateVariable: string) {
-    return this.state[stateVariable]
-  }
-
-  // Called by state hooks to set the value of something in the state
-  put(stateVariable: string, value: string) {
-    this.state[stateVariable] = value
-    // When something changes in the state, refreshFn should be called
-    this.refreshFn()
   }
 }

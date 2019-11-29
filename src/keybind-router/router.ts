@@ -119,6 +119,7 @@ export default class {
   // key binding functions that should be applied when that folder is entered
   private createBindFns(folderLevel: number) {
     // Get all the required data about the folder
+    const curFolderLevel = Math.max(1, this.openFolders.length - 1)
     const { name: folderName, backKey } = this.openFolders[folderLevel]
     const { isModifier, binds, keepOpen } = this.folders[folderName]
     // This will hold the binding functions
@@ -145,6 +146,7 @@ export default class {
           if (commandFn) commandFn(this.state)
           if (action.folder) {
             // If the action has a subfolder, open that folder
+            this.navigateBack(curFolderLevel - 1)
             this.openFolder(action.folder, key)
           } else if (!keepOpen) {
             // If a command was executed, close the folder

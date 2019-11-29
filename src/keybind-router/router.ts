@@ -26,7 +26,7 @@ type KeyMap = Record<Key, Action>
 // and not the actual content of that folder
 interface Action {
   icon?: Cond<string>
-  command?: Cond<Function>
+  command?: Cond<(context: State) => any>
   folder?: string
 }
 
@@ -142,7 +142,7 @@ export default class {
         down: () => {
           // If there is a command associated with the action, run it
           const commandFn = this.state.resolveConditional(action.command)
-          if (commandFn) commandFn()
+          if (commandFn) commandFn(this.state)
           if (action.folder) {
             // If the action has a subfolder, open that folder
             this.openFolder(action.folder, key)

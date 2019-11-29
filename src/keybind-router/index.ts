@@ -27,7 +27,7 @@ export interface Action {
   // Character code of the icon for this action
   icon?: Cond<string>
   // A command to execute when this action is executed
-  command?: Cond<Function>
+  command?: Cond<(context: State) => any>
   // A subfolder to open when this action is executed
   folder?: Folder | string
 }

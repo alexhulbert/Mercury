@@ -109,16 +109,16 @@ export class KeyboardMIO implements MercuryIODevice {
     for (const ignoredModifier of IGNORED_MODIFIERS) {
       modifiers &= ~(1 << ignoredModifier)
     }
-    if (
-      event.name === 'KeyPress' &&
-      this.keyDownFns[modifiers] &&
-      this.keyDownFns[modifiers][event.keycode]
-    ) this.keyDownFns[modifiers][event.keycode]()
-    if (
-      event.name === 'KeyRelease' &&
-      this.keyUpFns[modifiers] &&
-      this.keyUpFns[modifiers][event.keycode]
-    ) this.keyUpFns[modifiers][event.keycode]()
+
+    // Call either keyDown or keyUp functions based on event type
+    let fnMap
+    if (event.name === 'KeyPress') fnMap = this.keyDownFns
+    if (event.name === 'KeyRelease') fnMap = this.keyUpFns
+
+    // If a bound function exists for this key and modifiers, call it
+    if (fnMap && fnMap[modifiers] && fnMap[modifiers][event.keycode]) {
+      fnMap[modifiers][event.keycode]()
+    }
   }
 
   private xGrabKey(code: number, baseModifiers: number) {

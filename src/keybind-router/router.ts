@@ -35,6 +35,7 @@ export default class {
   // A trail of currently opened folders
   // BackKey refers to the key used to enter/undo that specific folder
   openFolders: Array<{ name: string, backKey?: string}> = []
+  currentIconMap: IconMap = {}
 
   // Accepts a list of initialized devices, a folder map, and a state object
   constructor(
@@ -50,9 +51,21 @@ export default class {
 
   // Reloads all the icons/buttons on screen
   private refresh() {
-    // TODO: Replace this with code that actually works
-    // const currentFolderLevel = this.openFolders.length - 1
-    // this.navigateBack(currentFolderLevel)
+    let newIcons = {}
+    for (let layer = 0; layer < this.openFolders.length; layer++) {
+      newIcons = { ...newIcons, ...this.createIconMap(layer) }
+    }
+
+    let delta = {}
+    for (const icon of Object.keys(newIcons)) {
+      if (newIcons[icon] !== this.currentIconMap[icon]) {
+        delta[icon] = newIcons[icon]
+      }
+    }
+
+    for (const device of this.devices) {
+      device.displayChars(delta)
+    }
   }
 
   // Opens a new folder on top of the current keybinds
@@ -188,11 +201,12 @@ export default class {
     }
 
     for (const device of this.devices) {
-      // Display all icons defined in newIcons
-      device.folderEntered(name || null)
       // Notify all devices that folder name has been changed
+      device.folderEntered(name || null)
+      // Display all icons defined in newIcons
       device.displayChars(newIcons)
     }
+    this.currentIconMap = { ...this.currentIconMap, ...newIcons }
   }
 
   // Determines which device is associated with a given key

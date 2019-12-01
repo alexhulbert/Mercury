@@ -79,8 +79,8 @@ export default class {
     this.pushChanges(name, newBindFns, newIcons)
   }
 
-  // Undoes one or more open folders
-  private navigateBack(folderLevel: number) {
+  // Undoes one or more open folders. If intermediate, don't push changes
+  private navigateBack(folderLevel: number, intermediate: boolean = false) {
     // The new innermost folder to show
     // Anything bound after this folder must be rebound
     // Anything bound before this folder does not need to be rebound
@@ -125,7 +125,9 @@ export default class {
     this.openFolders.splice(folderLevel + 1)
     // Register the new binds/icons defined in targetBindFns and targetIcons
     // This function also registers the new folder name 
-    this.pushChanges(destHistoryRecord.name, targetBindFns, targetIcons)
+    if (!intermediate) {
+      this.pushChanges(destHistoryRecord.name, targetBindFns, targetIcons)
+    }
   }
 
   // Given the index of a folder recorded in this.openFolders, generates the
@@ -159,7 +161,7 @@ export default class {
           if (commandFn) commandFn(this.state)
           if (action.folder) {
             // If the action has a subfolder, open that folder
-            this.navigateBack(curFolderLevel - 1)
+            this.navigateBack(curFolderLevel - 1, true)
             this.openFolder(action.folder, key)
           } else if (!keepOpen) {
             // If a command was executed, close the folder

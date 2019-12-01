@@ -51,7 +51,7 @@ export class KeyboardMIO implements MercuryIODevice {
   }
 
   reset() {
-    hud.send({ type: 'hide' })
+    hud.send({ method: 'hide' })
   }
 
   displayChars(keyCodes: Record<string, number>) {
@@ -59,8 +59,9 @@ export class KeyboardMIO implements MercuryIODevice {
       const index = KEYS.indexOf(key)
       if (index >= 0) this.hudCodes[index] = keyCodes[key]
     }
+    hud.send({ method: 'set', codes: this.hudCodes })
     if (this.curFolder) {
-      hud.send({ type: 'show', codes: this.hudCodes })
+      hud.send({ method: 'set'})
     }
   }
 
@@ -97,7 +98,7 @@ export class KeyboardMIO implements MercuryIODevice {
   folderEntered(folderName: string) {
     this.curFolder = folderName
     if (!folderName) {
-      hud.send({ type: 'hide' })
+      hud.send({ method: 'hide' })
     }
   }
 

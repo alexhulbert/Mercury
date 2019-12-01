@@ -3,7 +3,7 @@ const Gtk = GI.require('Gtk', '3.0')
 const Cairo = GI.require('cairo')
 
 interface Message {
-  type: 'show' | 'hide',
+  method: 'set' | 'show' | 'hide',
   codes?: number[]
 }
 
@@ -68,15 +68,14 @@ win.showAll()
 win.visible = false
 
 // Start main GTK loop after parent process finishes bindings
-process.on('message', ({ type, codes }: Message) => {
-  if (type == 'show') {
-    show(codes)
-  } else {
-    hide()
-  }
+process.on('message', ({ method, codes }: Message) => {
+  if (method === 'set') set(codes)
+  if (method === 'show') show()
+  if (method === 'hide') hide()
 })
 
-function show(codes: number[]) {
+// Set icons to new characters
+function set(codes: number[]) {
   // Loop over each of the NxN GTK labels
   for (let i = 0; i < DIM * DIM; i++) {
     // Create a span containing the char to display and attach it to the label
@@ -85,8 +84,10 @@ function show(codes: number[]) {
       `<span font_desc='${FONT_NAME}' size='${FONT_SIZE}'>${char}</span>`
     )
   }
+}
 
-  // Reposition HUD and make it visible
+// Reposition HUD and make it visible
+function show() {
   refreshPos()
   win.visible = true
 }

@@ -15,6 +15,9 @@ const IGNORED_MODIFIERS = [
   MODIFIERS.SHIFTLOCK
 ]
 
+const DELAYED_HUD_FOLDER = 'Open Workspace'
+const HUD_DELAY = 1000
+
 const KEYS = [
   'KP_Home',    'KP_Up', 'KP_Prior',
   'KP_Left', 'KP_Begin', 'KP_Right',
@@ -27,6 +30,9 @@ export class KeyboardMIO implements MercuryIODevice {
 
   keyDownFns: KeyFnMap = {}
   keyUpFns: KeyFnMap = {}
+
+  lastKeyPressed: string
+  delayTimeout: NodeJS.Timeout
 
   grabbedKeys: XKey[] = []
   xDisplay: any
@@ -61,7 +67,7 @@ export class KeyboardMIO implements MercuryIODevice {
     }
     hud.send({ method: 'set', codes: this.hudCodes })
     if (this.curFolder) {
-      hud.send({ method: 'set'})
+      hud.send({ method: 'show' })
     }
   }
 
@@ -70,7 +76,10 @@ export class KeyboardMIO implements MercuryIODevice {
     for (const { code, modifiers } of keycodesToBind) {
       this.xGrabKey(code, modifiers)
       if (!this.keyDownFns[modifiers]) this.keyDownFns[modifiers] = {}
-      this.keyDownFns[modifiers][code] = fn
+      this.keyDownFns[modifiers][code] = () => {
+        this.lastKeyPressed = key
+        fn()
+      }
     }
   }
 
@@ -96,9 +105,21 @@ export class KeyboardMIO implements MercuryIODevice {
   }
 
   folderEntered(folderName: string) {
+    const previousFolder = this.curFolder
     this.curFolder = folderName
+    if (this.delayTimeout) clearTimeout(this.delayTimeout)
     if (!folderName) {
-      hud.send({ method: 'hide' })
+      if (
+        previousFolder === DELAYED_HUD_FOLDER &&
+        KEYS.includes(this.lastKeyPressed)
+      ) {
+        this.delayTimeout = setTimeout(() => {
+          hud.send({ method: 'hide' })
+          this.delayTimeout = undefined
+        }, HUD_DELAY)
+      } else {
+        hud.send({ method: 'hide' })
+      }
     }
   }
 

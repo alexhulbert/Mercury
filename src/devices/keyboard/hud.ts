@@ -29,7 +29,7 @@ win.canFocus = false
 win.acceptFocus = false
 win.focusOnMap = false
 
-// Set window position and size
+// Set initial window position
 refreshPos()
 
 // Put this window above others, but make background semi-transparent
@@ -98,8 +98,11 @@ function hide() {
 // Queries monitor width and positions HUD on top right corner
 function refreshPos() {
   const screenWidth = win.getScreen().getWidth()
-  const windowWidth = win.getSize()[0]
-  win.move(screenWidth - windowWidth - WIN_PADDING, WIN_PADDING)
+  // Wait one tick to allow GTK windows to realize
+  setImmediate(() => {
+    const windowWidth = win.getSize()[0]
+    win.move(screenWidth - windowWidth - WIN_PADDING, WIN_PADDING)
+  })
 }
 
 // Draws a background on the main HUD window with the specified opacity 

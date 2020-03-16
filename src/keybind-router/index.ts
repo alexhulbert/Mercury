@@ -16,7 +16,7 @@ export interface Config {
 export type Key = any
 // A map from keys to actions. In the config file, keys can be mapped to
 // either commands, folders, or aliases
-export type KeyMap = Record<Key, Action | Alias>
+export type KeyMap = Record<Key, Action>
 
 // An action is anything that happens when a key is pressed
 // It can either be a command (a function to execute) or a folder of keybindings
@@ -45,13 +45,6 @@ export interface Folder {
   keepOpen?: boolean
 }
 
-// Aliases can be used to define mappings from a key to another folder and key
-// Useful for mapping multiple devices without having to define everything twice
-export interface Alias {
-  aliasTo: Key,
-  folderName?: string
-}
-
 // Used internally as the folder name of the root
 // When this folder is entered, `device.folderEntered(null)` is called
 export const ROOT_FOLDER_NAME = ''
@@ -64,19 +57,17 @@ export default async function({ devices, binds, state }: Config) {
   await Promise.all(promises)
   // Build map from folder name to folder object
   const rootFolder = { name: ROOT_FOLDER_NAME, binds }
-  const folderNameMap = buildFolderNameMap(rootFolder)
-  // Resolve all aliases in the folderName map
-  const resolvedFolderMap = resolveAliases(folderNameMap)
+  const folders = buildFolderNameMap(rootFolder)
   // Returns a new Router instance. This handles the body of the application
-  return new Router(devices, resolvedFolderMap, state)
+  return new Router(devices, folders, state)
 }
 
 // Converts the recursively-defined structure of the config file into
 // a map from folder name to folder contents. All references to subfolders
 // are replaced with a string containing the name of the subfolder
-function buildFolderNameMap(root: Folder): Record<Key, Folder> {
+function buildFolderNameMap(root: Folder): Record<string, RouterFolder> {
   // Initialize folder name map with the root folder
-  let folderNameMap = { [root.name]: root }
+  let folderNameMap = { [root.name]: root } as any
   // Loop through each binding of the root folder
   for (const key of Utils.keys(root.binds)) {
     // The below variable could be an alias. But, if it is, it won't have a
@@ -91,23 +82,4 @@ function buildFolderNameMap(root: Folder): Record<Key, Folder> {
     }
   }
   return folderNameMap
-}
-
-// Resolves all occurances of Alias with their corresponding Action 
-function resolveAliases(folderMap: Record<Key, Folder>): Record<Key, RouterFolder> {
-  // Loops through all folders
-  for (const folderName of Utils.keys(folderMap)) {
-    const folder = folderMap[folderName]
-    // Loops through each bound key of each folder
-    for (const boundKey of Utils.keys(folder.binds)) {
-      // If the key is bound to an alias, replace it with the action the alias
-      // is referring to (specified by a key and possibly a folder)
-      if (folder.binds[boundKey].hasOwnProperty('aliasTo')) {
-        const alias = folder.binds[boundKey] as Alias
-        const sourceFolder = alias.folderName || ROOT_FOLDER_NAME
-        folderMap.binds[boundKey] = folderMap[sourceFolder].binds[alias.aliasTo]
-      }
-    }
-  }
-  return folderMap as Record<Key, RouterFolder>
 }

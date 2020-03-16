@@ -36,6 +36,7 @@ export default class {
   // BackKey refers to the key used to enter/undo that specific folder
   openFolders: Array<{ name: string, backKey?: string}> = []
   currentIconMap: IconMap = {}
+  currentBinds: BindFnMap = {}
 
   // Accepts a list of initialized devices, a folder map, and a state object
   constructor(
@@ -57,7 +58,7 @@ export default class {
     }
 
     let delta = {}
-    for (const icon of Object.keys(newIcons)) {
+    for (const icon of Utils.keys(newIcons)) {
       if (newIcons[icon] !== this.currentIconMap[icon]) {
         delta[icon] = newIcons[icon]
       }
@@ -66,6 +67,7 @@ export default class {
     for (const device of this.devices) {
       device.displayChars(delta)
     }
+    this.currentIconMap = newIcons
   }
 
   // Opens a new folder on top of the current keybinds
@@ -161,7 +163,7 @@ export default class {
           if (commandFn) commandFn(this.state)
           if (action.folder) {
             // If the action has a subfolder, open that folder
-            this.navigateBack(curFolderLevel - 1, true)
+            this.navigateBack(curFolderLevel - 1)
             this.openFolder(action.folder, key)
           } else if (!keepOpen) {
             // If a command was executed, close the folder
@@ -204,10 +206,11 @@ export default class {
 
     for (const device of this.devices) {
       // Notify all devices that folder name has been changed
-      device.folderEntered(name || null)
+      if (device.folderEntered) device.folderEntered(name || null)
       // Display all icons defined in newIcons
       device.displayChars(newIcons)
     }
+    this.currentBinds = { ...this.currentBinds, ...newBindFns }
     this.currentIconMap = { ...this.currentIconMap, ...newIcons }
   }
 
